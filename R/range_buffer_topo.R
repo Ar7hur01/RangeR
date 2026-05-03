@@ -50,9 +50,17 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 6)
 
   ## calculate the range but based on the batterysize and consumption
   range_battery_meter <- available_battery_Wh/consumption_per_meter ## range battery in km
-
   point_metric <- sf::st_transform(point, crs = 25832)
+
   # 3. DEM Download via elevatr
+  message(paste("Available battery (kWh):", available_battery_Wh/1000))
+  message(paste("Consumption (kWh/km):", consumption/10))
+  message(paste("Calculated Range (km):", range_battery_meter/1000))
+
+  # Sicherheits-Check
+  if (is.na(range_battery_meter)) {
+  stop("Berechnete Reichweite ist NA! Überprüfe die Fahrzeugdaten.")
+  }
   message("Downloading DEM...")
   dem <- elevatr::get_elev_raster(
     locations = point_metric, 
