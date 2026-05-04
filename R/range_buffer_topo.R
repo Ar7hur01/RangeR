@@ -4,10 +4,10 @@
 #' @param lat Numeric latitude.
 #' @param model_name From the Database with corresponding range-value.
 #' @param batterylevel The Batterylevel (in %) of the vehicle (changes the total range), default = 100 %.
-#' @param z Zoom-Level for elevatr (5-8 recommended; default = 6)
+#' @param z Zoom-Level for elevatr (6-8 recommended; default = 7)
 #' @export
 
-calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 6) {
+calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7) {
 
   # Validate Coordinates and transform into sf
   point <- data.frame(lon = lon, lat = lat) |> 
@@ -70,7 +70,15 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 6)
   )  
   dem_terra <- terra::rast(dem)
 
-
+  # Kalibrierung auf die räumliche Skala
+  # Durch die unterschiedlichen z-Werte verändert sich ja auch die Pixelgröße und dadurch die Anzahl der "Auf- und Abs"
+  res_m <- mean(terra::res(dem_terra)) # Mittlere Auflösung in Metern
+  base_slope_factor <- 0.22
+  
+  # Skalierung: Je kleiner die Auflösung (feineres Raster), desto kleiner der Faktor.
+  # Beispiel: Wir nehmen 300m (ca. z=6) als Referenzpunkt.
+  adj_factor <- base_slope_factor * (res_m / 300)^0.5 # Quadratwurzel dämpft den Effekt etwas
+  
   ## gdistance is outdated and depending on raster --> switching to "leastcostpath"
   ecar_cost_function <- function(x) {
     # dz/dx in Prozent umwandeln
@@ -78,8 +86,8 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 6)
   
   # Dein Steigungs-Faktor (richtungsabhängig!)
     s_factor <- ifelse(slope_pct >= 0, 
-                       1 + (slope_pct * 0.22),           # Downhill
-                       1 + (slope_pct * 0.22 * 0.77))           # Uphill
+                       1 + (slope_pct * adj_factor),           # Downhill
+                       1 + (slope_pct * adj_factor * 0.77))           # Uphill
   
     s_factor <- pmax(s_factor, 0.3) ## Protection to avoid perpetuum mobile -> 30% energy is always used, also when going downhill
     
@@ -92,6 +100,7 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 6)
 
   print("Zellgröße des DEM:")
   print(terra::res(dem_terra))
+
   ## Cost per meter
     #cost_hills_per_meter <- consumption_per_meter * s_factor  ## in Wh/m (e.g. hilly: 135 * 10 *0.22 = 297 WH/m)
   ## Batterysize stays the same
@@ -140,7 +149,7 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 6)
   # 6. Die interaktive Karte bauen
   map <- leaflet::leaflet() |> 
     leaflet::addTiles() |>
-    leaflet::addPolygons(data = normal_buffer, color = "blue", weight = 2, fillOpacity = 0.2) |> 
+    leaflet::addPolygons(data = normal_buffer, color = "blue", weight = 2, fillOpacity = 0.1) |> 
     leaflet::addPolygons(
       data = reachable_poly, 
       color = "green", 

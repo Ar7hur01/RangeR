@@ -4,7 +4,7 @@
 \alias{calc_ev_topo_buffer}
 \title{Topographic Buffer around the vehicle location (in coordinates)}
 \usage{
-calc_ev_topo_buffer(lon, lat, model_name, batterylevel = 100, z = 6)
+calc_ev_topo_buffer(lon, lat, model_name, batterylevel = 100, z = 7)
 }
 \arguments{
 \item{lon}{Numeric longitude.}
@@ -15,7 +15,7 @@ calc_ev_topo_buffer(lon, lat, model_name, batterylevel = 100, z = 6)
 
 \item{batterylevel}{The Batterylevel (in \%) of the vehicle (changes the total range), default = 100 \%.}
 
-\item{z}{Zoom-Level for elevatr (5-8 recommended; default = 6)}
+\item{z}{Zoom-Level for elevatr (6-8 recommended; default = 7)}
 }
 \description{
 Topographic Buffer around the vehicle location (in coordinates)
