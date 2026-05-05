@@ -63,22 +63,6 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7)
   range_battery_meter <- available_battery_Wh/consumption_per_meter ## range battery in km
   point_metric <- sf::st_transform(point, crs = 25832)
 
-  # Inside calc_ev_topo_buffer, after calculating reachable_poly:
-##### HIER WEITER MACHEN!!!
-# 1. Fetch stations using the helper from the other script
-  stations_df <- fetch_charging_stations(
-    lat = lat, 
-    lon = lon, 
-    radius_km = range_battery_meter / 1000, 
-    api_key = "YOUR_KEY"
-  )
-
-# 2. Filter by topography (only if stations were found)
-  stations_reachable <- NULL
-  if (!is.null(stations_df)) {
-    stations_reachable <- sf::st_filter(stations_df, reachable_poly)
-  }
-
   # 3. DEM Download via elevatr
   message(paste("Available battery (kWh):", available_battery_Wh/1000))
   message(paste("Consumption (kWh/km):", consumption/10))
@@ -128,6 +112,17 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7)
   print("Zellgröße des DEM:")
   print(terra::res(dem_terra))
 
+  ## Cost per meter
+    #cost_hills_per_meter <- consumption_per_meter * s_factor  ## in Wh/m (e.g. hilly: 135 * 10 *0.22 = 297 WH/m)
+  ## Batterysize stays the same
+    #range_battery_hills_meter <- available_battery_Wh/cost_hills_per_meter ## range battery (incl. percentage) in km (after hills-check)
+    #return(1/cost_hills_per_meter)
+
+  # Leitfähigkeit (1 / Kosten) berechnen
+  # Kosten = Verbrauch pro Meter * Steigungsfaktor
+    #conductance <- 1 / (consumption_per_meter * s_factor)
+  
+    #return(conductance)
   
   # Test: Was verbraucht das Auto bei 5% Steigung pro Meter?
   print(paste("Kosten bei 5% Steigung:", 1 / ecar_cost_function(0.1), "Wh/m"))
