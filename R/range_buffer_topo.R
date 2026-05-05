@@ -13,6 +13,17 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7)
   point <- data.frame(lon = lon, lat = lat) |> 
   sf::st_as_sf(coords = c("lon", "lat"), crs = 4326) ##CRS: 4326 (WGS84, in degree)
   
+  ## Looking into the "Package-database but also into the custom created one to search for the modelnames"
+  all_available_models <- ev_models_all
+  user_data_path <- file.path(tools::R_user_dir("RangeR", which = "data"), "custom_models.csv")
+
+  if (file.exists(user_data_path)) {
+    custom_models <- read.csv(user_data_path, stringsAsFactors = FALSE)
+    # Combine models
+    # Note: Ensure column names match exactly!
+    all_available_models <- rbind(all_available_models, custom_models)
+  }
+
   ## Matching input and database
   ##from Fiat 500e Cabrio to "fiat500ecabrio"
   clean_string <- function(x) {
@@ -21,14 +32,14 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7)
   }
     # 2. Search in databank
   user_input_clean <- clean_string(model_name)
-  db_models_clean  <- clean_string(ev_models_all$model)
+  db_models_clean  <- clean_string(all_available_models$model)
   # Does database match with user input?
   match_idx <- match(user_input_clean, db_models_clean)
 
-  if (length(match_idx) == 0) {
+  if (is.na(match_idx)) {
     # If nothing is found, help will show up
     stop(paste0("Model '", model_name, "' not found. Try one of these: ", 
-                paste(head(ev_models_all$model, 3), collapse = ", ")))
+                paste(head(all_available_models$model, 3), collapse = ", ")))
   }
 
   # if batterylevel is not at 100 %
@@ -37,7 +48,7 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7)
       batterylevel <- 100
     }
 
-  selected_row <- ev_models_all[match_idx[1], ] ## saving the whole selected row, not just the range-value
+  selected_row <- all_available_models[match_idx[1], ] ## saving the whole selected row, not just the range-value
   range_model <- selected_row$range_km[1] * (batterylevel/100)
   range_model_meter <- range_model * 1000
 
@@ -52,6 +63,22 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7)
   range_battery_meter <- available_battery_Wh/consumption_per_meter ## range battery in km
   point_metric <- sf::st_transform(point, crs = 25832)
 
+  # Inside calc_ev_topo_buffer, after calculating reachable_poly:
+##### HIER WEITER MACHEN!!!
+# 1. Fetch stations using the helper from the other script
+  stations_df <- fetch_charging_stations(
+    lat = lat, 
+    lon = lon, 
+    radius_km = range_battery_meter / 1000, 
+    api_key = "YOUR_KEY"
+  )
+
+# 2. Filter by topography (only if stations were found)
+  stations_reachable <- NULL
+  if (!is.null(stations_df)) {
+    stations_reachable <- sf::st_filter(stations_df, reachable_poly)
+  }
+
   # 3. DEM Download via elevatr
   message(paste("Available battery (kWh):", available_battery_Wh/1000))
   message(paste("Consumption (kWh/km):", consumption/10))
@@ -59,7 +86,7 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7)
 
   # Sicherheits-Check
   if (is.na(range_battery_meter)) {
-  stop("Berechnete Reichweite ist NA! Überprüfe die Fahrzeugdaten.")
+  stop("Calculated Range is NA!, Check the EV-data.")
   }
   message("Downloading DEM...")
   dem <- elevatr::get_elev_raster(
@@ -101,17 +128,6 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7)
   print("Zellgröße des DEM:")
   print(terra::res(dem_terra))
 
-  ## Cost per meter
-    #cost_hills_per_meter <- consumption_per_meter * s_factor  ## in Wh/m (e.g. hilly: 135 * 10 *0.22 = 297 WH/m)
-  ## Batterysize stays the same
-    #range_battery_hills_meter <- available_battery_Wh/cost_hills_per_meter ## range battery (incl. percentage) in km (after hills-check)
-    #return(1/cost_hills_per_meter)
-
-  # Leitfähigkeit (1 / Kosten) berechnen
-  # Kosten = Verbrauch pro Meter * Steigungsfaktor
-    #conductance <- 1 / (consumption_per_meter * s_factor)
-  
-    #return(conductance)
   
   # Test: Was verbraucht das Auto bei 5% Steigung pro Meter?
   print(paste("Kosten bei 5% Steigung:", 1 / ecar_cost_function(0.1), "Wh/m"))
