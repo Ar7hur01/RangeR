@@ -7,14 +7,15 @@
 #' @export
 add_custom_ev <- function(model, batterysize, range_km, consumption) {
   
-  # 1. Pfad für User-Daten festlegen
+  # Path for user-data
   user_data_dir <- tools::R_user_dir("RangeR", which = "data")
   if (!dir.exists(user_data_dir)) dir.create(user_data_dir, recursive = TRUE)
   
+  # adding the new file to the path
   file_path <- file.path(user_data_dir, "custom_models.csv")
   print(file_path)
 
-  # 2. Neues Fahrzeug als Dataframe
+  # new EV as df
   new_ev <- data.frame(
     model = model,
     batterysize = as.numeric(batterysize),
@@ -23,7 +24,7 @@ add_custom_ev <- function(model, batterysize, range_km, consumption) {
     stringsAsFactors = FALSE
   )
   
-  # 3. Speichern (Anhängen oder neu erstellen)
+  # save it to the old file or generate new file (if it´s the first model)
   if (file.exists(file_path)) {
     old_evs <- read.csv(file_path)
     combined <- rbind(old_evs, new_ev)

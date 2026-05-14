@@ -9,12 +9,12 @@
 #' @keywords internal
 fetch_chargers_ocm <- function(lat, lon, distance_km, api_key = Sys.getenv("OCM_API_KEY")) {
   
-  # Check, ob der Key vorhanden ist
+  # Check, if key is available
   if (api_key == "") {
-    warning("Kein OpenChargeMap API-Key gefunden! Bitte in der .Renviron als OCM_API_KEY hinterlegen.")
+    warning("No OpenChargeMap API-Key found!")
     return(NULL)
   }
-  
+  # Integration of API Key and limitation to 999 stations
   url <- paste0(
     "https://api.openchargemap.io/v3/poi/?output=json",
     "&latitude=", lat,
@@ -26,10 +26,11 @@ fetch_chargers_ocm <- function(lat, lon, distance_km, api_key = Sys.getenv("OCM_
     "&key=", api_key
   )
   
+  # requesting the Data from URL as Json-file
   res <- tryCatch({
     jsonlite::fromJSON(url)
   }, error = function(e) {
-    message("Fehler bei der API-Abfrage: ", e$message)
+    message("Error API-request: ", e$message)
     return(NULL)
   })
   
@@ -37,7 +38,7 @@ fetch_chargers_ocm <- function(lat, lon, distance_km, api_key = Sys.getenv("OCM_
     return(NULL)
   }
   
-  # Umwandlung in sf-Objekt
+  # merging lon/lat to generate coordinates
   chargers_sf <- sf::st_as_sf(
     res$AddressInfo, 
     coords = c("Longitude", "Latitude"), 

@@ -9,13 +9,13 @@
  
 range_buffer_simple <- function(lon, lat, model_name, batterylevel = 100) {
 
-  # 1. String Cleaning (intern)
+  # generic String Cleaning 
   clean_string <- function(x) {
     x <- gsub("[^[:alnum:]]", "", x) 
     tolower(x)
   }
 
-  # 2. Database search
+  # Database search
   user_input_clean <- clean_string(model_name)
   db_models_clean  <- clean_string(ev_models_all$model)
   match_idx <- which(db_models_clean == user_input_clean)
@@ -24,40 +24,40 @@ range_buffer_simple <- function(lon, lat, model_name, batterylevel = 100) {
     stop(paste0("Model '", model_name, "' not found."))
   }
 
-  # 3. Calculating range
+  # Calculating range (based on batterylevel)
   selected_row <- ev_models_all[match_idx[1], ]
   range_model <- selected_row$range_km[1] * (batterylevel/100) * 1000
 
-  # 4. Geodaten (Buffer) erstellen
+  # Buffer creation (size of the range)
   vehicle_pt <- sf::st_point(c(lon, lat)) |> sf::st_sfc(crs = 4326)
   buffer_creation <- vehicle_pt |>
     sf::st_transform(3857) |> 
     sf::st_buffer(dist = range_model) |> 
     sf::st_transform(4326)
 
-  # --- DIESE ZEILE HAT WAHRSCHEINLICH GEFEHLT ---
+  # calling the function fetch_chargers to get API Key for the integration
   chargers <- fetch_chargers_ocm(lat = lat, lon = lon, distance_km = (range_model / 1000))
-  # ----------------------------------------------
 
   ## adding the icons
   car_icon <- leaflet::makeAwesomeIcon(
-    icon = "car",           # Nutzt das Font-Awesome Auto-Symbol
+    icon = "car", 
     library = "fa",
-    markerColor = "blue",   # Das Auto bekommt eine andere Farbe als die Ladesäulen
+    markerColor = "blue",
     iconColor = "white"
   )
   charger_icon <- leaflet::makeAwesomeIcon(
-    icon = "flash",          # Alternativ: "plug" oder "bolt"
+    icon = "flash",   
     iconColor = "white",
-    markerColor = "green",   # Farbe des "Tropfens" im Hintergrund
-    library = "fa"           # Font Awesome
+    markerColor = "green",
+    library = "fa"
   )
   
-  # 5. Karte bauen
+  # General map creation
   map <- leaflet::leaflet() |> 
     leaflet::addTiles() |> 
     leaflet::addPolygons(data = buffer_creation, color = "blue", weight = 2, fillOpacity = 0.2)
 
+  # adding the symbols (stations + car)
   map <- map |>
     leaflet::addAwesomeMarkers(
       lng = lon, 
@@ -66,14 +66,13 @@ range_buffer_simple <- function(lon, lat, model_name, batterylevel = 100) {
       popup = paste0("<b>Fahrzeug:</b> ", selected_row$model)
     )
 
-  # 6. Ladestationen hinzufügen (nur wenn 'chargers' existiert)
   if (!is.null(chargers)) {
     map <- map |> 
       leaflet::addAwesomeMarkers(
         data = chargers, 
         icon = charger_icon,
         group = "Charging Stations",
-        clusterOptions = leaflet::markerClusterOptions() # Bonus: Gruppiert Icons beim Rauszoomen
+        clusterOptions = leaflet::markerClusterOptions()
       )
   }
 
