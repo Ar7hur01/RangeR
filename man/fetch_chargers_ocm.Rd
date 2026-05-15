@@ -4,7 +4,13 @@
 \alias{fetch_chargers_ocm}
 \title{Fetch charging stations from OpenChargeMap}
 \usage{
-fetch_chargers_ocm(lat, lon, distance_km, api_key = Sys.getenv("OCM_API_KEY"))
+fetch_chargers_ocm(
+  lat,
+  lon,
+  distance_km,
+  min_power = 50,
+  api_key = Sys.getenv("OCM_API_KEY")
+)
 }
 \arguments{
 \item{lat}{Numeric latitude.}

@@ -7,7 +7,7 @@
 #' @importFrom jsonlite fromJSON
 #' @importFrom sf st_as_sf
 #' @keywords internal
-fetch_chargers_ocm <- function(lat, lon, distance_km, api_key = Sys.getenv("OCM_API_KEY")) {
+fetch_chargers_ocm <- function(lat, lon, distance_km, min_power = 50, api_key = Sys.getenv("OCM_API_KEY")) {
   
   # Check, if key is available
   if (api_key == "") {
@@ -21,6 +21,7 @@ fetch_chargers_ocm <- function(lat, lon, distance_km, api_key = Sys.getenv("OCM_
     "&longitude=", lon,
     "&distance=", distance_km,
     "&distanceunit=KM",
+    "&minpowerkw=", min_power, # new: only fast-charging
     "&maxresults=999",
     "&compact=true",
     "&key=", api_key
