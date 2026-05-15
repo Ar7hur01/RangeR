@@ -4,10 +4,11 @@
 #' @param lat Numeric latitude.
 #' @param model_name From the Database with corresponding range-value.
 #' @param batterylevel The Batterylevel (in %) of the vehicle (changes the total range), default = 100 %.
+#' @param temp_celsius If the temperature is lower than 20°C it reduces the total range by 1.5 % per degree (default = 20°C)
 #' @return Leaflet map.
 #' @export
  
-range_buffer_simple <- function(lon, lat, model_name, batterylevel = 100) {
+range_buffer_simple <- function(lon, lat, model_name, batterylevel = 100, temp_celsius = 20) {
 
   # generic String Cleaning 
   clean_string <- function(x) {
@@ -24,9 +25,18 @@ range_buffer_simple <- function(lon, lat, model_name, batterylevel = 100) {
     stop(paste0("Model '", model_name, "' not found."))
   }
 
+  # Adding the temperature influence (<20°C)
+  temp_factor <- if (temp_celsius < 20) {
+  1 - (20 - temp_celsius) * 0.015
+  } else {
+  1 # >20°C has no influence
+  }
+
   # Calculating range (based on batterylevel)
   selected_row <- ev_models_all[match_idx[1], ]
-  range_model <- selected_row$range_km[1] * (batterylevel/100) * 1000
+  range_model <- selected_row$range_km[1] * (batterylevel/100) * 1000 * temp_factor
+
+  print(range_model)
 
   # Buffer creation (size of the range)
   vehicle_pt <- sf::st_point(c(lon, lat)) |> sf::st_sfc(crs = 4326)

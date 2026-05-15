@@ -146,6 +146,7 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7,
   # adding the icons for the map
   car_icon <- leaflet::makeAwesomeIcon(icon = "car", library = "fa", markerColor = "blue", iconColor = "white")
   charger_icon <- leaflet::makeAwesomeIcon(icon = "flash", iconColor = "white", markerColor = "green", library = "fa")
+  color_palette <- leaflet::colorBin(palette = c("orange", "green", "darkgreen"), domain = chargers$MaxPowerKW, bins = c(0, 50, 150, 400))
 
   # Map
   map <- leaflet::leaflet() |> 
@@ -169,7 +170,7 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7,
   if (!is.null(chargers)) {
     map <- map |> 
       leaflet::addAwesomeMarkers(
-        data = chargers, 
+        data = chargers,
         icon = charger_icon,
         group = "Charging Stations",
         clusterOptions = leaflet::markerClusterOptions()

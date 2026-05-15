@@ -4,7 +4,13 @@
 \alias{range_buffer_simple}
 \title{Simple uniform Buffer around the vehicle location (in coordinates)}
 \usage{
-range_buffer_simple(lon, lat, model_name, batterylevel = 100)
+range_buffer_simple(
+  lon,
+  lat,
+  model_name,
+  batterylevel = 100,
+  temp_celsius = 20
+)
 }
 \arguments{
 \item{lon}{Numeric longitude.}
@@ -14,6 +20,8 @@ range_buffer_simple(lon, lat, model_name, batterylevel = 100)
 \item{model_name}{From the Database with corresponding range-value.}
 
 \item{batterylevel}{The Batterylevel (in \%) of the vehicle (changes the total range), default = 100 \%.}
+
+\item{temp_celsius}{If the temperature is lower than 20°C it reduces the total range by 1.5 \% per degree (default = 20°C)}
 }
 \value{
 Leaflet map.
