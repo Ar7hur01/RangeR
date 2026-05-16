@@ -4,16 +4,16 @@
 \alias{add_custom_ev}
 \title{Add your own vehicle to the database}
 \usage{
-add_custom_ev(model, batterysize, range_km, consumption)
+add_custom_ev(model, batterysize, consumption, range_km)
 }
 \arguments{
 \item{model}{Modelname of the vehicle.}
 
 \item{batterysize}{Batterysize in kWh (for EVs normally between 20 and 140)}
 
-\item{range_km}{Official WLTP Range in km (for modern EVs normally between 250 and 900)}
-
 \item{consumption}{Consumption in kWh/100km (for EVs normally between 14 and 25)}
+
+\item{range_km}{Official WLTP Range in km (for modern EVs normally between 250 and 900)}
 }
 \description{
 Add your own vehicle to the database

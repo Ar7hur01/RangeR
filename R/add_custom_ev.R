@@ -5,7 +5,7 @@
 #' @param consumption Consumption in kWh/100km (for EVs normally between 14 and 25)
 #' @param range_km Official WLTP Range in km (for modern EVs normally between 250 and 900)
 #' @export
-add_custom_ev <- function(model, batterysize, range_km, consumption) {
+add_custom_ev <- function(model, batterysize, consumption, range_km) {
   
   # Path for user-data
   user_data_dir <- tools::R_user_dir("RangeR", which = "data")

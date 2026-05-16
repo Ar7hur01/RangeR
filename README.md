@@ -33,12 +33,12 @@ library(RangeR)
 View(ev_models_all)
 
 # 1. Calculate a simple range buffer considering temperature
-simple_range <- range_buffer_simple(
-  lon = 9.932, 
-  lat = 49.791, 
+range_buffer_simple(
+  lon = 9.9782, 
+  lat = 49.7873, 
   model = "BMW i5 xDrive40 Touring", 
-  batterylevel = 80, 
-  temperature = 15
+  batterylevel = 90, 
+  temp_celsius = 18
 )
 
 # 2. Advanced calculation including topography (DEM) and routing

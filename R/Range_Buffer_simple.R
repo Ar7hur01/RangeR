@@ -9,6 +9,16 @@
 #' @export
  
 range_buffer_simple <- function(lon, lat, model_name, batterylevel = 100, temp_celsius = 20) {
+  
+  ## Looking into the "Package-database and into the custom created one to search for the modelnames
+  all_available_models <- ev_models_all
+  user_data_path <- file.path(tools::R_user_dir("RangeR", which = "data"), "custom_models.csv")
+
+  if (file.exists(user_data_path)) {
+    custom_models <- read.csv(user_data_path, stringsAsFactors = FALSE)
+    # Combine the dataframes (based on colnames)
+    all_available_models <- rbind(all_available_models, custom_models)
+  }
 
   # generic String Cleaning 
   clean_string <- function(x) {
@@ -18,7 +28,7 @@ range_buffer_simple <- function(lon, lat, model_name, batterylevel = 100, temp_c
 
   # Database search
   user_input_clean <- clean_string(model_name)
-  db_models_clean  <- clean_string(ev_models_all$model)
+  db_models_clean  <- clean_string(all_available_models$model)
   match_idx <- which(db_models_clean == user_input_clean)
 
   if (length(match_idx) == 0) {
@@ -33,7 +43,7 @@ range_buffer_simple <- function(lon, lat, model_name, batterylevel = 100, temp_c
   }
 
   # Calculating range (based on batterylevel)
-  selected_row <- ev_models_all[match_idx[1], ]
+  selected_row <- all_available_models[match_idx[1], ]
   range_model <- selected_row$range_km[1] * (batterylevel/100) * 1000 * temp_factor
 
   print(range_model)
