@@ -634,7 +634,25 @@ based on a starting point and a specific EV model:</p>
 <span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>)</span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a></span>
 <span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co"># 2. Advanced calculation including topography (DEM) and routing</span></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co"># topo_range &lt;- calc_ev_topo_buffer(lon = 9.932, lat = 49.791, model = &quot;Tesla Model 3&quot;)</span></span></code></pre></div>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="fu">calc_ev_topo_buffer</span>(</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  <span class="at">lon =</span> <span class="fl">9.43</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="at">lat =</span> <span class="fl">48.23</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="at">model =</span> <span class="st">&quot;Mercedes-Benz EQS 350&quot;</span>,</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  <span class="at">batterylevel =</span> <span class="dv">80</span>,</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  <span class="at">temp_celsius =</span> <span class="dv">19</span>,</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="at">z =</span> <span class="dv">6</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="at">min_power =</span> <span class="dv">50</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>)</span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co"># 3. Add your own vehicle</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>add_custom_ev <span class="ot">&lt;-</span> <span class="cf">function</span>(model, batterysize, consumption, range_km) {</span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="fu">add_custom_ev</span>(</span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  <span class="st">&quot;My dreamcar&quot;</span>,</span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>  <span class="at">batterysize =</span> <span class="dv">140</span>,</span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>  <span class="at">consumption =</span> <span class="dv">14</span>,</span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>  <span class="at">range_km =</span> <span class="dv">870</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>)</span></code></pre></div>
 
 </body>
 </html>

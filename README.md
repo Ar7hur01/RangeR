@@ -42,5 +42,23 @@ range_buffer_simple(
 )
 
 # 2. Advanced calculation including topography (DEM) and routing
-# topo_range <- calc_ev_topo_buffer(lon = 9.932, lat = 49.791, model = "Tesla Model 3")
+calc_ev_topo_buffer(
+  lon = 9.43,
+  lat = 48.23,
+  model = "Mercedes-Benz EQS 350",
+  batterylevel = 80,
+  temp_celsius = 19,
+  z = 6,
+  min_power = 50
+)
+
+
+# 3. Add your own vehicle
+add_custom_ev <- function(model, batterysize, consumption, range_km) {
+add_custom_ev(
+  "My dreamcar",
+  batterysize = 140,
+  consumption = 14,
+  range_km = 870
+)
 ```
