@@ -1,11 +1,18 @@
 Package: RangeR
-Title: What the Package Does (One Line, Title Case)
+Title: Calculating the range for electric vehicles based on various components
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Arthur", "Dreher", , "arthur.dreher@stud-mail.uni-wuerzburg.de", role = c("aut", "cre"))
+Description: Calculates and displays the range of electric vehicles (EVs)
+    based on topographic and environmental factors. Includes a database of 
+    over 650 modern EV models, with functionality to add custom vehicles 
+    via 'add_custom_ev'. Provides 'range_buffer_simple' for simple range 
+    estimates considering battery level and ambient temperature. Offers a 
+    sophisticated 'calc_ev_topo_buffer' function that downloads Digital 
+    Elevation Models (DEMs) and charging network data to compute realistic, 
+    topography-aware range buffers. Results can be visualized on an 
+    interactive map showing non-uniform range polygons.
+License: `use_mit_license()`, `use_gpl3_license()`
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
