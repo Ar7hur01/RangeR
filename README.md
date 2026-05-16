@@ -32,7 +32,7 @@ library(RangeR)
 # To view all available models (from the database) run:
 View(ev_models_all)
 
-# 1. Calculate a simple range buffer considering temperature
+# 1. Calculate a simple range buffer considering temperature & batterylevel
 range_buffer_simple(
   lon = 9.9782, 
   lat = 49.7873, 
@@ -41,7 +41,7 @@ range_buffer_simple(
   temp_celsius = 18
 )
 
-# 2. Advanced calculation including topography (DEM) and routing
+# 2. Advanced buffer calculation including the topography (DEM)
 calc_ev_topo_buffer(
   lon = 9.43,
   lat = 48.23,
@@ -53,7 +53,7 @@ calc_ev_topo_buffer(
 )
 
 
-# 3. Add your own vehicle
+# 3. Add your own vehicle to the database
 add_custom_ev <- function(model, batterysize, consumption, range_km) {
 add_custom_ev(
   "My dreamcar",
