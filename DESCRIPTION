@@ -2,7 +2,7 @@ Package: RangeR
 Title: Calculating the range for electric vehicles based on various components
 Version: 0.0.0.9000
 Authors@R: 
-    person("Arthur", "Dreher", , "arthur.dreher@stud-mail.uni-wuerzburg.de", role = c("aut", "cre"))
+    person("Arthur", "Dreher", "arthur.dreher@stud-mail.uni-wuerzburg.de", role = c("aut", "cre"))
 Description: Calculates and displays the range of electric vehicles (EVs)
     based on topographic and environmental factors. Includes a database of 
     over 650 modern EV models, with functionality to add custom vehicles 

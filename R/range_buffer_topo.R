@@ -4,11 +4,12 @@
 #' @param lat Numeric latitude.
 #' @param model_name From the Database with corresponding range-value.
 #' @param batterylevel The Batterylevel (in %) of the vehicle (changes the total range), default = 100 %.
+#' @param temp_celsius If the temperature is lower than 20°C it reduces the total range by 1.5 % per degree (default = 20°C)
 #' @param z Zoom-Level for DEM-resolution (6-8 recommended; default = 7)
 #' @param min_power Minimum charging speed for the charging stations (default = 50 kW)
 #' @export
 
-calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7, min_power = 50) {
+calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, temp_celsius = 20, z = 7, min_power = 50) {
 
   # Validate Coordinates and transform into sf
   point <- data.frame(lon = lon, lat = lat) |> 
@@ -46,10 +47,15 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7,
     warning("Battery level should be between 0 and 100. Using default (100%).")
       batterylevel <- 100
     }
+  # If temperature is <20°C
+  temp_factor <- if (temp_celsius < 20) {
+    1 - (20 - temp_celsius) * 0.015
+    } else {
+    1 # >20°C has no influence
+    }
 
   selected_row <- all_available_models[match_idx[1], ] ## saving the whole selected row, not just the range-value
   range_model <- selected_row$range_km[1] * (batterylevel/100)
-  range_model_meter <- range_model * 1000
 
 
    ## Battery & Consumption values of the car
@@ -58,8 +64,8 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7,
   consumption <- as.numeric(selected_row$consumption) ## in Wh/km (e.g. 135 Wh/km)
   consumption_per_meter <- consumption/1000 ## in Wh/m (e.g. 135 WH/m)
 
-  ## calculate the range but based on the batterysize and consumption
-  range_battery_meter <- available_battery_Wh/consumption_per_meter ## range battery in km
+  ## calculate the range but based on the batterysize and consumption and temperature
+  range_battery_meter <- (available_battery_Wh/consumption_per_meter) * temp_factor ## range battery in km
   point_metric <- sf::st_transform(point, crs = 25832)
 
   # DEM Download via elevatr
@@ -126,7 +132,7 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7,
   )
   
   # If the battery capacity is reaches all values will turn into NA
-  reachable_raster <- terra::ifel(cost_surface <= available_battery_Wh, 1, NA)
+  reachable_raster <- terra::ifel(cost_surface <= (available_battery_Wh * temp_factor), 1, NA)
   
   # changing into sf-polygon
   reachable_poly <- terra::as.polygons(reachable_raster, dissolve = TRUE) |> 
@@ -139,7 +145,7 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, z = 7,
     sf::st_transform(25832) |> 
     sf::st_buffer(dist = range_battery_meter) |> 
     sf::st_transform(4326)
-
+  
   # calling the function fetch_chargers to get API Key for the integration
   chargers <- fetch_chargers_ocm(lat = lat, lon = lon, distance_km = (range_battery_meter / 1000), min_power = min_power)
 

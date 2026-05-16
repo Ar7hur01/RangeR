@@ -9,6 +9,7 @@ calc_ev_topo_buffer(
   lat,
   model_name,
   batterylevel = 100,
+  temp_celsius = 20,
   z = 7,
   min_power = 50
 )
@@ -21,6 +22,8 @@ calc_ev_topo_buffer(
 \item{model_name}{From the Database with corresponding range-value.}
 
 \item{batterylevel}{The Batterylevel (in \%) of the vehicle (changes the total range), default = 100 \%.}
+
+\item{temp_celsius}{If the temperature is lower than 20°C it reduces the total range by 1.5 \% per degree (default = 20°C)}
 
 \item{z}{Zoom-Level for DEM-resolution (6-8 recommended; default = 7)}
 
