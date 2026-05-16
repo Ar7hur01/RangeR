@@ -46,7 +46,7 @@ range_buffer_simple <- function(lon, lat, model_name, batterylevel = 100, temp_c
   selected_row <- all_available_models[match_idx[1], ]
   range_model <- selected_row$range_km[1] * (batterylevel/100) * 1000 * temp_factor
 
-  print(range_model)
+  message(paste("\nRange of the model (km):", range_model/1000))
 
   # Buffer creation (size of the range)
   vehicle_pt <- sf::st_point(c(lon, lat)) |> sf::st_sfc(crs = 4326)

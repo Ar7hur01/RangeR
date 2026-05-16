@@ -69,7 +69,7 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, temp_c
   point_metric <- sf::st_transform(point, crs = 25832)
 
   # DEM Download via elevatr
-  message(paste("Available battery (kWh):", available_battery_Wh/1000))
+  message(paste("\nAvailable battery (kWh):", available_battery_Wh/1000))
   message(paste("Consumption (kWh/km):", consumption/10))
   message(paste("Calculated Range (km):", range_battery_meter/1000))
 
@@ -77,7 +77,7 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, temp_c
   if (is.na(range_battery_meter)) {
   stop("Calculated Range is NA!, Check the EV-data.")
   }
-  message("Downloading DEM...")
+  message("\nDownloading DEM...")
   dem <- elevatr::get_elev_raster(
     locations = point_metric, 
     z = z,            
@@ -116,13 +116,15 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, temp_c
 
   # Berechnung auf einen Meter normiert
   real_wh_per_m <- (1 / ecar_cost_function(0.05))
-  print(paste("Consumption at 5% Slope:", round(real_wh_per_m, 4), "Wh/m"))
+  print(paste("For comparison: consumption at 5% Slope:", round(real_wh_per_m, 4), "Wh/m"))
 
   # cost/consumption of the DEM
-  cs_cost <- leastcostpath::create_slope_cs(
+  cs_cost <- suppressMessages(
+    leastcostpath::create_slope_cs(
     x = dem_terra, 
     cost_function = ecar_cost_function, 
     neighbours = 8
+    )
   )
   
   # Setting the startpoint
@@ -137,12 +139,10 @@ calc_ev_topo_buffer <- function(lon, lat, model_name, batterylevel = 100, temp_c
   # changing into sf-polygon
   reachable_poly <- terra::as.polygons(reachable_raster, dissolve = TRUE) |> 
     sf::st_as_sf() |> 
-    sf::st_set_crs(25832) |>  # Metric System
     sf::st_transform(4326)   # Transformation for leaflet
   
 
    normal_buffer <- point_metric |>
-    sf::st_transform(25832) |> 
     sf::st_buffer(dist = range_battery_meter) |> 
     sf::st_transform(4326)
   
